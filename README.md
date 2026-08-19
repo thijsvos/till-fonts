@@ -35,6 +35,19 @@ Grab the TTFs from the **[latest release](https://github.com/thijsvos/till-mono/
 — or straight from [`fonts/ttf/`](fonts/ttf) — and install them like any other
 font: double-click → Install. Then select **Till Mono** in your app.
 
+**macOS: if "Till Mono" doesn't appear after installing**, the download is
+quarantined. Safari/Chrome tag downloaded files with `com.apple.quarantine`, and
+Font Book copies the tag into `~/Library/Fonts/` — the font installs, reports
+`valid=yes`, and is still skipped by the font registry, so it never shows up in
+any font picker. Clear it:
+
+```sh
+xattr -d com.apple.quarantine ~/Library/Fonts/TillMono-*.ttf
+```
+
+The font appears within a few seconds; no logout or cache reset needed. This is a
+macOS download-security behaviour, not a problem with the font.
+
 Release assets carry [build provenance](https://docs.github.com/actions/security-guides/using-artifact-attestations),
 so you can verify a download really came from this repo's CI:
 
