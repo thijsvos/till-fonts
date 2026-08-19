@@ -1,3 +1,18 @@
-fonttools>=4.50
-brotli
-pillow
+# Exact pins are load-bearing, not hygiene. CI rebuilds the committed TTF/WOFF2
+# and fails on any byte drift (.github/workflows/build.yml, step "Fail if
+# committed fonts drift from source").
+#
+#   fontTools controls TTF table layout, and honours SOURCE_DATE_EPOCH for
+#   head.created / head.modified via fontTools/misc/timeTools.py.
+#   brotli is ~98% of every .woff2 payload; fontTools calls
+#   brotli.compress(..., mode=MODE_FONT) with the encoder's default quality,
+#   so any encoder change rewrites those files.
+#
+# Bumping either REQUIRES rebuilding and committing fonts/ + docs/fonts/ in the
+# same commit:  SOURCE_DATE_EPOCH=1787097600 python src/build_till_mono.py
+fonttools==4.63.0
+brotli==1.2.0
+
+# Pillow only renders proof PNGs, which CI deliberately does not diff.
+# Pinned for consistency; safe to bump on its own.
+pillow==12.3.0
