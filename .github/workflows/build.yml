@@ -6,7 +6,7 @@ on:
     tags: ['v*']
   pull_request:
 
-# Least privilege by default; the release job opts up to contents: write.
+# Least privilege by default; the release job opts up to what it needs.
 permissions:
   contents: read
 
@@ -19,11 +19,14 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-python@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
-          python-version: "3.12"
-      - run: pip install -r requirements.txt
+          python-version: "3.14"
+
+      # --require-hashes: a substituted wheel fails the install rather than
+      # silently producing different font bytes.
+      - run: pip install --require-hashes -r requirements.txt
 
       - name: Rebuild fonts from source
         run: python src/build_till_mono.py
@@ -47,7 +50,7 @@ jobs:
           python src/proof.py
           python src/render_previews.py
 
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: till-mono-proofs
           path: |
@@ -55,17 +58,48 @@ jobs:
             specimen.png
             receipt_demo.png
 
+  # Backs the README's originality claim with an actual check: fails if any
+  # glyph becomes byte-identical to a reference pixel font outside the known
+  # single-solution shapes. Kept separate from `build` because it needs network
+  # access to fetch the references, and it must not gate a release.
+  originality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.14"
+      - run: pip install --require-hashes -r requirements.txt
+      - name: Check glyphs against reference pixel fonts
+        run: python src/compare.py
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: till-mono-comparison
+          path: compare_sheet.png
+
   release:
     needs: build
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: write      # create the release and upload assets
+      id-token: write      # OIDC token for provenance signing
+      attestations: write  # record the attestation
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Package fonts
         run: zip -r "till-mono-${GITHUB_REF_NAME}.zip" fonts OFL.txt README.md
+
+      # Lets anyone verify a downloaded font was built by this workflow from
+      # this commit:  gh attestation verify <file> --repo thijsvos/till-mono
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: |
+            fonts/ttf/TillMono-Regular.ttf
+            fonts/ttf/TillMono-Bold.ttf
+            till-mono-*.zip
 
       - uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3.0.2
         with:

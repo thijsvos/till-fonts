@@ -158,3 +158,30 @@ for fi, (label, table, col) in enumerate(fonts):
                                 fill=col)
 img.save("compare_sheet.png")
 print("\nwrote compare_sheet.png", img.size)
+
+# ----------------------------------------------------------------- verdict --
+# On an 8x12 pixel grid a handful of shapes have essentially one sensible
+# solution, so any two pixel fonts converge on them -- a horizontal rule for
+# underscore, a cross for plus, the obvious box corners. Those are listed here
+# as expected. An identical bitmap for anything *outside* these sets would be a
+# real collision worth investigating, so CI fails on it.
+ALLOWED_ROM = set("_")
+ALLOWED_DEP = set("!*+,=T`×÷–┌╔")
+
+problems = []
+for label, exact, allowed in (("font8x8 (IBM ROM style)", ex1, ALLOWED_ROM),
+                              ("Departure Mono", ex2, ALLOWED_DEP)):
+    unexpected = sorted(set(exact) - allowed)
+    if unexpected:
+        problems.append(f"{label}: unexpected identical glyphs {''.join(unexpected)!r}")
+
+print()
+if problems:
+    print("ORIGINALITY CHECK FAILED")
+    for p in problems:
+        print("  " + p)
+    print("  A glyph now matches a reference font exactly. Either redraw it, or")
+    print("  if it is genuinely a single-solution shape, add it to the allow-set")
+    print("  in src/compare.py with a note explaining why.")
+    raise SystemExit(1)
+print("ORIGINALITY CHECK PASSED - identical bitmaps are canonical shapes only")
