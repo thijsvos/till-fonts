@@ -31,7 +31,7 @@ EM = 1200
 ADV = 800         # 8 px advance
 ASC, DESC = 900, 300
 FAMILY = "Till Mono"
-VERSION = "1.000"
+VERSION = "1.003"
 AUTHOR = "Thijs Vos"
 REPO = "https://github.com/thijsvos/till-mono"
 COPYRIGHT = f"Copyright 2026 {AUTHOR} ({REPO})"
@@ -1070,6 +1070,9 @@ def build(style="Regular", outdir=None):
     os2 = fb.font["OS/2"]
     os2.fsSelection = 0x20 if bold else 0x40
     fb.font["head"].macStyle = 0x1 if bold else 0x0
+    # Machine-readable version; OSes key font-cache invalidation on this,
+    # so it has to move whenever the outlines do.
+    fb.font["head"].fontRevision = float(VERSION)
     fb.setupPost(isFixedPitch=1, underlinePosition=-150, underlineThickness=100)
 
     # outdir=None -> the tracked repo layout; pass a path for a throwaway build.

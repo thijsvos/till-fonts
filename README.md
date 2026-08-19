@@ -70,7 +70,7 @@ Copy [`fonts/webfonts/`](fonts/webfonts) into your project:
 Or hotlink via jsDelivr, pinned to a release tag — no install, no build step:
 
 ```css
-src: url("https://cdn.jsdelivr.net/gh/thijsvos/till-mono@v1.0.2/fonts/webfonts/TillMono-Regular.woff2") format("woff2");
+src: url("https://cdn.jsdelivr.net/gh/thijsvos/till-mono@v1.0.3/fonts/webfonts/TillMono-Regular.woff2") format("woff2");
 ```
 
 You can also depend on it from another project directly:

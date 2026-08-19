@@ -28,6 +28,9 @@ jobs:
       # silently producing different font bytes.
       - run: pip install --require-hashes -r requirements.txt
 
+      - name: Check version consistency
+        run: python src/check_versions.py
+
       - name: Rebuild fonts from source
         run: python src/build_till_mono.py
 
@@ -87,6 +90,11 @@ jobs:
       attestations: write  # record the attestation
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # Fails the release if the tag disagrees with package.json / the font's
+      # own version -- v1.0.1 and v1.0.2 both shipped as "Version 1.000".
+      - name: Check tag matches declared version
+        run: python src/check_versions.py "${GITHUB_REF_NAME}"
 
       - name: Package fonts
         run: zip -r "till-mono-${GITHUB_REF_NAME}.zip" fonts OFL.txt README.md
