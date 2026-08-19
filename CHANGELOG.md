@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.0.2 — 2026-08-19
+
+Bold fix. Regular is unchanged and byte-identical to 1.0.0.
+
+- **Fixed:** the 9 glyphs with 7-px-wide rows (`M W m w # % & @ ☺`) had no right
+  sidebearing in Bold, so they touched the following character — `MMM` and `WWW`
+  rendered as a fused mass. `embolden()`'s guard against this was dead code.
+- Corrected documentation: the build command in `build_till_mono.py`'s module
+  docstring omitted `SOURCE_DATE_EPOCH`; the claim that pillow is safe to bump
+  alone was wrong (it rasterises the originality check's reference font)
+- Added docstrings to the functions that warrant them; dropped an unused parameter
+
 ## 1.0.1 — 2026-08-19
 
 No font changes — the binaries are byte-identical to 1.0.0.
