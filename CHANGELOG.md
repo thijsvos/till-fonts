@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.0.1 — 2026-08-19
 
 No font changes — the binaries are byte-identical to 1.0.0.
 
