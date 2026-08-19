@@ -30,5 +30,15 @@ changed. Bumping either one therefore **requires rebuilding and committing
 `pillow` only renders the proof PNGs, which CI does not diff, so it can be bumped
 on its own.
 
+`requirements.txt` is hash-pinned and generated — don't hand-edit the hashes.
+Change the versions in `src/gen_requirements.py` and re-run it:
+
+```sh
+python src/gen_requirements.py
+```
+
+Dependabot also opens weekly PRs for these; a red one means that release changes
+the font binaries, and the fix is to rebuild and commit them in the same PR.
+
 Please keep new glyphs original — don't paste bitmaps from other fonts, even
 open-source ones, so the provenance story in the README stays true.

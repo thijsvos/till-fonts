@@ -35,6 +35,15 @@ Grab the TTFs from the **[latest release](https://github.com/thijsvos/till-mono/
 — or straight from [`fonts/ttf/`](fonts/ttf) — and install them like any other
 font: double-click → Install. Then select **Till Mono** in your app.
 
+Release assets carry [build provenance](https://docs.github.com/actions/security-guides/using-artifact-attestations),
+so you can verify a download really came from this repo's CI:
+
+```sh
+gh attestation verify TillMono-Regular.ttf --repo thijsvos/till-mono
+```
+
+(Attestation was added after v1.0.0, so it covers later releases.)
+
 ## Use on the web
 
 Copy [`fonts/webfonts/`](fonts/webfonts) into your project:
@@ -92,7 +101,7 @@ A live specimen with an interactive type tester is at
 
 ```sh
 python3 -m venv .venv && . .venv/bin/activate
-pip install -r requirements.txt
+pip install --require-hashes -r requirements.txt   # CI builds on Python 3.14
 
 # Pins the font's internal timestamp so rebuilds are byte-identical.
 # CI uses this exact value — build without it and your fonts will look "changed".
@@ -133,12 +142,21 @@ thickening strokes one pixel. The full character map:
 
 Every outline here is original: each glyph was typed by hand as the ASCII art
 you see in the build script and traced to outlines by code in the same file —
-no font was ever opened, traced, or converted. Because pixel grids force
-convergent solutions, [`src/compare.py`](src/compare.py) also diffs every
-glyph bitmap against the two closest relatives (an IBM-style 8×8 ROM font and
-Departure Mono): none of the 62 shared letters and digits match the ROM font,
-and only single-solution canonical shapes (T, `+ = × ÷`, comma, box corners…)
-coincide with Departure Mono — as any two pixel fonts on similar grids will.
+no font was ever opened, traced, or converted.
+
+Because pixel grids force convergent solutions, [`src/compare.py`](src/compare.py)
+diffs every glyph bitmap against the two closest relatives — and **runs on every
+push**, failing CI if any glyph becomes byte-identical to a reference outside a
+small allow-list of single-solution shapes. Current results:
+
+| Reference | Shared glyphs | Identical bitmaps |
+|---|---|---|
+| font8x8 (IBM-style 8×8 ROM) | 94 | 1 — `_` |
+| Departure Mono | 144 | 12 — ``! * + , = T ` × ÷ – ┌ ╔`` |
+
+**No letter or digit matches either reference.** Every collision is a shape with
+essentially one sensible solution on an 8×12 grid — a rule, a cross, the obvious
+box corners — which is what any two pixel fonts converge on.
 
 ![Comparison](docs/compare_sheet.png)
 
