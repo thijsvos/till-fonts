@@ -27,8 +27,9 @@ every `.woff2` payload — so a version change rewrites the binaries even when n
 changed. Bumping either one therefore **requires rebuilding and committing
 `fonts/` and `docs/fonts/` in the same commit**, or CI's drift guard will fail.
 
-`pillow` only renders the proof PNGs, which CI does not diff, so it can be bumped
-on its own.
+`pillow` renders the proof PNGs, which CI does not diff — but it *also* rasterises
+the Departure Mono reference in `src/compare.py`, so a bump can move the originality
+check. Review a pillow bump against a green `originality` job before merging.
 
 `requirements.txt` is hash-pinned and generated — don't hand-edit the hashes.
 Change the versions in `src/gen_requirements.py` and re-run it:

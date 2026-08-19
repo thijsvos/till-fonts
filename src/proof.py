@@ -9,7 +9,8 @@ CW, CH = 8 * S, 12 * S
 PAD, LABEL = 10, 14
 COLS = 12
 
-def draw_cell(d, ox, oy, ch, top, rows):
+def draw_cell(d, ox, oy, top, rows):
+    """Draw one glyph cell with cap, x-height and baseline guides at (ox, oy)."""
     # guides: cell, cap line (row1 top), x line (row3 top), baseline (row8 bottom)
     d.rectangle([ox, oy, ox + CW - 1, oy + CH - 1], outline=(45, 45, 55))
     for row_line, col in ((1, (60, 60, 45)), (3, (60, 60, 45))):
@@ -33,7 +34,7 @@ def main():
         cx, cy = i % COLS, i // COLS
         ox = PAD + cx * (CW + PAD)
         oy = PAD + cy * (CH + PAD + LABEL)
-        draw_cell(d, ox, oy, ch, top, rows)
+        draw_cell(d, ox, oy, top, rows)
         label = ch if ch.isprintable() and ch != ' ' else '%04X' % ord(ch)
         d.text((ox, oy + CH + 1), f"{label} {ord(ch):04X}", fill=(150, 150, 160))
     img.save("proof_sheet.png")

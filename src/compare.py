@@ -7,6 +7,10 @@ check (a) exact bitmap identity and (b) best-alignment intersection-over-
 union similarity. References:
   * font8x8 (IBM PC ROM-style 8x8 font, public domain)
   * Departure Mono (Helena Zhang, OFL) rendered at its native pixel size
+
+Fetches both references into the CWD on first run, writes compare_sheet.png,
+and exits 1 on any identical bitmap outside the allow-sets below (CI gate).
+Run from the repo root: python src/compare.py
 """
 import re
 import os
@@ -30,6 +34,9 @@ for fname, url in REFS.items():
 
 # ---------------------------------------------------------------- helpers --
 def crop(pixset):
+    """Return pixset as a hashable tuple-of-tuples bitmap cropped to its ink
+    bounding box, or None if the set is empty.
+    """
     if not pixset:
         return None
     xs = [p[0] for p in pixset]; ys = [p[1] for p in pixset]
@@ -41,7 +48,7 @@ def crop(pixset):
     return tuple(tuple(r) for r in grid)
 
 def iou(a, b):
-    """Best IoU over all placements of the smaller bitmap inside the larger."""
+    """Best IoU over the offsets tried; each axis slides only where ``a`` is longer."""
     ha, wa = len(a), len(a[0]); hb, wb = len(b), len(b[0])
     if (ha, wa) < (hb, wb) or (ha * wa) < (hb * wb):
         a, b, ha, wa, hb, wb = b, a, hb, wb, ha, wa
@@ -112,6 +119,9 @@ for ch in till:
 
 # ----------------------------------------------------------------- report --
 def compare(name, ref):
+    """Print the similarity report for one reference and return the chars
+    whose bitmaps are identical -- the input to the originality gate below.
+    """
     shared = [ch for ch in sorted(till, key=ord) if ch in ref]
     exact, sims = [], []
     for ch in shared:

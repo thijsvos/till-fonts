@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """Regenerate the hash-pinned requirements.txt from PyPI.
 
 The build toolchain is pinned exactly because CI asserts byte-identical font
@@ -30,7 +31,9 @@ HEADER = '''\
 #   brotli is ~98% of every .woff2 payload; fontTools calls
 #   brotli.compress(..., mode=MODE_FONT) with the encoder's default quality,
 #   so any encoder change rewrites those files.
-#   pillow only renders the proof PNGs, which CI deliberately does not diff.
+#   pillow renders the proof PNGs (not diffed) but also rasterises the
+#   Departure Mono reference in src/compare.py, so a bump can move the
+#   originality check.
 #
 # Bumping fonttools or brotli REQUIRES rebuilding and committing fonts/ and
 # docs/fonts/ in the same commit:
