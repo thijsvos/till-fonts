@@ -19,5 +19,16 @@ To propose a change:
    the PNGs into `docs/` if they changed
 6. Open a pull request that includes the updated proof sheet
 
+## Bumping the build toolchain
+
+`requirements.txt` pins `fonttools` and `brotli` to exact versions on purpose. The
+compiled font bytes are a function of those two libraries — brotli alone is ~98% of
+every `.woff2` payload — so a version change rewrites the binaries even when no glyph
+changed. Bumping either one therefore **requires rebuilding and committing
+`fonts/` and `docs/fonts/` in the same commit**, or CI's drift guard will fail.
+
+`pillow` only renders the proof PNGs, which CI does not diff, so it can be bumped
+on its own.
+
 Please keep new glyphs original — don't paste bitmaps from other fonts, even
 open-source ones, so the provenance story in the README stays true.
