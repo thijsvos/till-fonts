@@ -42,7 +42,7 @@ so you can verify a download really came from this repo's CI:
 gh attestation verify TillMono-Regular.ttf --repo thijsvos/till-mono
 ```
 
-(Attestation was added after v1.0.0, so it covers later releases.)
+(v1.0.0 predates attestation; v1.0.1 and later carry it.)
 
 ## Use on the web
 
