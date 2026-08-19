@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.0.3 — 2026-08-19
+
+Version-metadata fix. Glyph outlines are unchanged from 1.0.2.
+
+- **Fixed:** the font reported `Version 1.000` in every release, so 1.0.1 and
+  1.0.2 were indistinguishable despite shipping different Bold outlines — and
+  font caches key on that value. The name-table version and `head.fontRevision`
+  now track the release.
+- `package.json` had also never moved off 1.0.0
+- New `src/check_versions.py`, run in CI on every push and again against the tag,
+  fails the build if package.json, the font version, the README's CDN pin and the
+  tag ever disagree again
+
 ## 1.0.2 — 2026-08-19
 
 Bold fix. Regular is unchanged and byte-identical to 1.0.0.
