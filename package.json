@@ -1,0 +1,12 @@
+{
+  "name": "till-mono",
+  "version": "1.0.0",
+  "description": "An original open-source 8x12 pixel monospace font for 1980s-style receipts, labels and terminal UIs.",
+  "license": "OFL-1.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thijsvos/till-mono.git"
+  },
+  "keywords": ["font", "pixel-font", "bitmap-font", "monospace", "receipt", "thermal-printer", "ofl", "woff2"],
+  "files": ["fonts", "OFL.txt", "README.md"]
+}

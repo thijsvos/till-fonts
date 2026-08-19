@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Till Mono — an open 8×12 pixel monospace</title>
+<style>
+  @font-face {
+    font-family: "Till Mono";
+    src: url("./fonts/TillMono-Regular.woff2") format("woff2");
+    font-weight: 400;
+  }
+  @font-face {
+    font-family: "Till Mono";
+    src: url("./fonts/TillMono-Bold.woff2") format("woff2");
+    font-weight: 700;
+  }
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 48px 24px 96px;
+    background: #0d0d10; color: #ffb000;
+    font-family: "Till Mono", monospace;
+    line-height: 1; -webkit-font-smoothing: none; font-smooth: never;
+    display: flex; flex-direction: column; align-items: center; gap: 36px;
+  }
+  h1 { font-size: 72px; font-weight: 700; margin: 0; text-align: center; }
+  p.tag { color: #967018; font-size: 24px; margin: 0; text-align: center; }
+  section { width: min(92vw, 880px); }
+  .lines { font-size: 24px; }
+  .lines div { margin: 10px 0; }
+  .bold { font-weight: 700; }
+  .dim { color: #967018; }
+  pre {
+    font-family: inherit; font-size: 24px; line-height: 1; margin: 0 auto;
+    background: #f7f2e7; color: #1a1815; padding: 26px 20px; width: max-content;
+    box-shadow: 8px 10px 0 #00000055;
+  }
+  .tester {
+    font-size: 36px; padding: 18px; border: 2px solid #967018; outline: none;
+    min-height: 96px; width: 100%;
+  }
+  .sizes span { display: inline-block; margin-right: 24px; vertical-align: baseline; }
+  a { color: #ffb000; }
+</style>
+</head>
+<body>
+  <div>
+    <h1>TILL MONO</h1>
+    <p class="tag">AN OPEN-SOURCE 8×12 PIXEL MONOSPACE • SIL OFL 1.1</p>
+  </div>
+
+  <section class="lines">
+    <div>ABCDEFGHIJKLMNOPQRSTUVWXYZ</div>
+    <div>abcdefghijklmnopqrstuvwxyz</div>
+    <div>0123456789 ¢$€£¥ #%&amp;@*+=&lt;&gt;/\</div>
+    <div>!?"'()[]{}|;:,.^~–—•…°×÷ ←↑→↓ ✓☺</div>
+    <div>Sphinx of black quartz, judge my vow.</div>
+    <div class="bold">Bold for totals: GRAND TOTAL $19.58</div>
+    <div class="sizes dim">
+      <span style="font-size:12px">12px</span>
+      <span style="font-size:24px">24px</span>
+      <span style="font-size:36px">36px</span>
+      <span style="font-size:48px">48px</span>
+      — pixel-perfect at multiples of 12px
+    </div>
+  </section>
+
+  <section>
+<pre>╔══════════════════════════════╗
+║      RAD VIDEO + ARCADE      ║
+║   2600 ATARI AVE • MALL 8    ║
+╚══════════════════════════════╝
+
+ 06/21/1986  22:42  REG#2  0084
+────────────────────────────────
+THE WARRIORS  VHS           2.99
+TRON          VHS           2.99
+ARCADE TOKENS ×25           5.00
+BLANK TAPE T-120            7.49
+────────────────────────────────
+SUBTOTAL                   18.47
+TAX 6%                      1.11
+<span class="bold">TOTAL                      19.58</span>
+────────────────────────────────
+   ░▒▓ BE KIND • REWIND ▓▒░
+    ☺ HAVE A RADICAL DAY ☺</pre>
+  </section>
+
+  <section>
+    <div class="dim" style="font-size:24px;margin-bottom:12px">TYPE SOMETHING:</div>
+    <div class="tester" contenteditable="true" spellcheck="false">THANK YOU • COME AGAIN ☺</div>
+  </section>
+
+  <p class="dim" style="font-size:24px">
+    <a href="https://github.com/thijsvos/till-mono">github.com/thijsvos/till-mono</a>
+  </p>
+</body>
+</html>

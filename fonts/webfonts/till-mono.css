@@ -1,0 +1,16 @@
+/* Till Mono — SIL OFL 1.1. Drop this folder into your project and
+   @import or <link> this file. Pixel-perfect at multiples of 12px. */
+@font-face {
+  font-family: "Till Mono";
+  src: url("./TillMono-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Till Mono";
+  src: url("./TillMono-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}

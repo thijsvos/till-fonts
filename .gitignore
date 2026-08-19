@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+dist/
+departure.otf
+font8x8_basic.h
+/proof_sheet.png
+/specimen.png
+/receipt_demo.png
+/compare_sheet.png
+.DS_Store
+.venv/
