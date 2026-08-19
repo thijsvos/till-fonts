@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Till Mono — an original 8x12 pixel-grid monospaced typeface.
+"""Till Mono — an original 8x12 pixel-grid monospaced typeface.
 
 Inspired by the 1980s engineering-terminal aesthetic (the same well Berkeley
 Mono draws from) and by classic dot-matrix receipt printers. All outlines are
@@ -15,7 +14,9 @@ Grid:
   * normal glyphs draw in cols 1..6; wide glyphs cols 0..6;
     box/blocks use the full 0..7 so they connect edge-to-edge
 
-Edit any letter below and re-run:  python3 build_till_mono.py
+Edit any letter below and re-run:
+  SOURCE_DATE_EPOCH=1787097600 python src/build_till_mono.py
+Without SOURCE_DATE_EPOCH the head timestamps float and CI's drift guard fails.
 License: SIL Open Font License 1.1
 """
 
@@ -856,6 +857,7 @@ G['\u25AA'] = (4, [".XXX..",            # small black square
                    ".XXX.."])
 
 def _shade(keep):
+    """Return a full-bleed 8x12 G entry filled wherever keep(x, y) is true."""
     return (0, ["".join("X" if keep(x, y) else "." for x in range(8))
                 for y in range(12)])
 
@@ -883,6 +885,7 @@ NO_BOLD = set("\u2500\u2502\u250C\u2510\u2514\u2518\u251C\u2524\u252C\u2534"
 # ----------------------------------------------------------------------------
 
 def validate():
+    """Assert every bitmap fits the 12-row cell and uses only 6/7/8-wide rows."""
     for ch, (top, rows) in list(G.items()) + [("<notdef>", NOTDEF)]:
         assert 0 <= top and top + len(rows) <= 12, f"{ch!r}: bad row span"
         for r in rows:
@@ -901,12 +904,17 @@ def pixels_of(top, rows):
     return pts
 
 def embolden(pts, wide7):
+    """Return pts dilated one column right to fake weight.
+
+    wide7 suppresses the smear into column 7, so 7-px-wide glyphs keep a
+    sliver of right sidebearing instead of touching the next character.
+    """
     out = set(pts)
     for (x, y) in pts:
         if x + 1 <= 7:
             out.add((x + 1, y))
-    if wide7:                      # keep a sliver of right bearing on 7px glyphs
-        out = {(x, y) for (x, y) in out if not (x == 7 and (6, y) not in pts)}
+    if wide7:
+        out = {(x, y) for (x, y) in out if not (x == 7 and (7, y) not in pts)}
         out |= {(x, y) for (x, y) in pts}
     return out
 
@@ -914,8 +922,11 @@ RIGHT = {(1, 0): (0, -1), (0, -1): (-1, 0), (-1, 0): (0, 1), (0, 1): (1, 0)}
 LEFT = {v: k for k, v in RIGHT.items()}
 
 def trace(pts):
-    """March pixel boundary; filled area stays on the right of travel
-    (clockwise outers, counter-clockwise holes, TrueType style)."""
+    """March the pixel boundary into closed contours.
+
+    Filled area stays on the right of travel: clockwise outers,
+    counter-clockwise holes, TrueType style.
+    """
     edges = {}
     def add(a, b):
         edges.setdefault(a, []).append(b)
@@ -975,6 +986,7 @@ AGL = {' ': "space", '!': "exclam", '"': "quotedbl", '#': "numbersign",
        '}': "braceright", '~': "asciitilde"}
 
 def glyph_name(ch):
+    """Return the AGL/PostScript glyph name for ch, falling back to uniXXXX."""
     if ch in AGL:
         return AGL[ch]
     if ch.isascii() and ch.isalnum():
@@ -982,12 +994,21 @@ def glyph_name(ch):
     return "uni%04X" % ord(ch)
 
 def build(style="Regular", outdir=None):
+    """Compile one style to TTF + WOFF2 and return the TTF path.
+
+    outdir=None writes the tracked repo layout (fonts/ttf, fonts/webfonts
+    and docs/fonts); any path writes every artifact to that one directory.
+    """
     validate()
     bold = style == "Bold"
     order = [".notdef"]
     cmap, glyf, metrics = {}, {}, {}
 
     def compile_glyph(name, top, rows, ch=None):
+        """Trace one bitmap into the enclosing glyf/metrics dicts.
+
+        ch=None skips the NO_BOLD lookup, used for .notdef.
+        """
         pts = pixels_of(top, rows)
         if bold and pts and (ch is None or ch not in NO_BOLD):
             wide7 = any(len(r) == 7 for r in rows)
@@ -1008,7 +1029,7 @@ def build(style="Regular", outdir=None):
         order.append(name)
         cmap[ord(ch)] = name
         compile_glyph(name, *G[ch], ch=ch)
-    # map NBSP to space width
+    # render NBSP with the space glyph instead of .notdef
     cmap[0x00A0] = "space"
 
     fb = FontBuilder(EM, isTTF=True)

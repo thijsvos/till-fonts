@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Render specimen + receipt previews using the compiled Till Mono TTFs."""
+"""Render specimen + receipt previews using the compiled Till Mono TTFs.
+
+Writes specimen.png and receipt_demo.png. Run from the repo root -- the
+TTF input paths are relative.
+"""
 import random
 from PIL import Image, ImageDraw, ImageFont
 
@@ -12,6 +16,7 @@ def adv(size):                 # monospace advance in px at a given ppem
 
 # ---------------------------------------------------------------- specimen --
 def specimen():
+    """Render the type specimen sheet to specimen.png."""
     BG, AMBER, DIM = (13, 13, 16), (255, 176, 0), (150, 105, 25)
     W = 1060
     img = Image.new("RGB", (W, 1210), BG)
@@ -67,6 +72,7 @@ def specimen():
 
 # ----------------------------------------------------------------- receipt --
 def receipt():
+    """Render the mock till receipt to receipt_demo.png."""
     SIZE = 24                      # 2 screen px per font px
     CW = adv(SIZE)                 # char width
     COLS = 32
