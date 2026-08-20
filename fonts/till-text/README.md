@@ -1,6 +1,6 @@
 # Till Text
 
-An original 8×16 pixel monospace for user interfaces, body copy and code.
+An original 10×16 pixel monospace for user interfaces, body copy and code.
 Part of [Till Fonts](https://github.com/thijsvos/till-fonts).
 
 Where [Till Mono](../till-mono/) is square and deliberately retro, Till Text is the
@@ -10,8 +10,9 @@ x-height, uniform stroke weight and flat terminals.
 
 - **208 glyphs** — printable ASCII, Latin-1 accents (`é à ü ñ ç ø ß …`), typographic
   marks, currency, maths (`± ≤ ≥ ≠ × ÷`), arrows, box drawing and blocks
-- **Large x-height** — 800 of a 1000 cap height, the ratio that keeps small text legible
-- **Regular + Bold**, monospaced at an 8 px advance
+- **Large x-height** — 800 of a 1000 cap height, and 8 px of ink under a 10 px
+  cap (a 0.80 ratio) so letters read as text rather than condensed
+- **Regular + Bold**, monospaced at a 10 px advance
 - **Pixel-perfect at multiples of 16 px**, which is the web's default body size
 
 ## Install

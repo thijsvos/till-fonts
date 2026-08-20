@@ -1,5 +1,19 @@
 # Changelog
 
+## 2.1.1 — 2026-08-20
+
+Till Text redrawn at 10×16. **Its metrics changed**, so text set in 1.000 will
+reflow.
+
+- 1.000 put 6 px of ink under a 10 px cap — a 0.60 ratio that read as visibly
+  condensed. The cell is now 10 px wide with 8 px of ink, giving 0.80 (Till Mono
+  is 0.75), while keeping the large x-height at 0.80 of cap height.
+- `M`, `W` and `w` previously used the 7-wide row form, which draws from column
+  0 and left them with **no left sidebearing** — they touched the preceding
+  character. Every letter now has a uniform 1 px bearing on both sides.
+- Originality improved as a side effect: **0 identical bitmaps** against
+  Departure Mono (was 1), mean IoU 0.36 (was 0.41).
+
 ## 2.1.0 — 2026-08-20
 
 Adds **Till Text**, the family's general-purpose face.
