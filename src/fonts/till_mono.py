@@ -1,10 +1,9 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Till Mono — an original 8x12 pixel-grid monospaced typeface.
+"""Till Mono -- an original 8x12 pixel-grid monospaced typeface.
 
-Inspired by the 1980s engineering-terminal aesthetic (the same well Berkeley
-Mono draws from) and by classic dot-matrix receipt printers. All outlines are
-original, drawn on a pixel grid and compiled to TrueType.
+Inspired by the 1980s engineering-terminal aesthetic and by classic dot-matrix
+receipt printers. All outlines are original, drawn on a pixel grid and compiled
+to TrueType.
 
 Grid:
   * cell: 8 px wide x 12 px tall, 100 font units per px, UPM = 1200
@@ -14,41 +13,23 @@ Grid:
   * normal glyphs draw in cols 1..6; wide glyphs cols 0..6;
     box/blocks use the full 0..7 so they connect edge-to-edge
 
-Edit any letter below and re-run:
-  SOURCE_DATE_EPOCH=1787097600 python src/build_till_mono.py
+Edit any letter below and rebuild:
+  SOURCE_DATE_EPOCH=1787097600 python src/build_all.py
 Without SOURCE_DATE_EPOCH the head timestamps float and CI's drift guard fails.
 License: SIL Open Font License 1.1
 """
+from pixelfont import Grid, Identity, shade
 
-import os
-import shutil
-from fontTools.fontBuilder import FontBuilder
-from fontTools.pens.ttGlyphPen import TTGlyphPen
-from fontTools.ttLib.tables.O_S_2f_2 import Panose
+GRID = Grid(cols=8, rows=12, baseline_row=8, cap_top_row=1, x_top_row=3)
 
-PX = 100          # font units per pixel
-EM = 1200
-ADV = 800         # 8 px advance
-ASC, DESC = 900, 300
-FAMILY = "Till Mono"
-VERSION = "1.003"
-AUTHOR = "Thijs Vos"
-REPO = "https://github.com/thijsvos/till-mono"
-COPYRIGHT = f"Copyright 2026 {AUTHOR} ({REPO})"
-
-# Built artifacts are committed, so the build writes straight to their tracked
-# locations; CI rebuilds and fails if the result differs (see .github/workflows).
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-TTF_DIR = os.path.join(ROOT, "fonts", "ttf")
-WOFF2_DIRS = [os.path.join(ROOT, "fonts", "webfonts"),
-              os.path.join(ROOT, "docs", "fonts")]
-
-# ----------------------------------------------------------------------------
-# Glyph bitmaps: char -> (top_row, [row strings])
-#   row string length 6 -> drawn at cols 1..6
-#   row string length 7 -> drawn at cols 0..6
-#   row string length 8 -> drawn at cols 0..7 (full bleed, for box/blocks)
-# ----------------------------------------------------------------------------
+IDENTITY = Identity(
+    family="Till Mono",
+    ps_prefix="TillMono",
+    slug="till-mono",
+    version="1.004",
+    description=("An original 8x12 pixel-grid monospaced typeface for "
+                 "1980s-style receipts, terminals and labels."),
+)
 
 G = {}
 
@@ -856,14 +837,9 @@ G['\u25AA'] = (4, [".XXX..",            # small black square
                    ".XXX..",
                    ".XXX.."])
 
-def _shade(keep):
-    """Return a full-bleed 8x12 G entry filled wherever keep(x, y) is true."""
-    return (0, ["".join("X" if keep(x, y) else "." for x in range(8))
-                for y in range(12)])
-
-G['\u2591'] = _shade(lambda x, y: x % 2 == 0 and y % 2 == 0)      # light 25%
-G['\u2592'] = _shade(lambda x, y: (x + y) % 2 == 0)               # medium 50%
-G['\u2593'] = _shade(lambda x, y: not (x % 2 == 0 and y % 2 == 0))  # dark 75%
+G['\u2591'] = shade(GRID, lambda x, y: x % 2 == 0 and y % 2 == 0)      # light 25%
+G['\u2592'] = shade(GRID, lambda x, y: (x + y) % 2 == 0)               # medium 50%
+G['\u2593'] = shade(GRID, lambda x, y: not (x % 2 == 0 and y % 2 == 0))  # dark 75%
 
 NOTDEF = (1, ["XXXXXX",
               "X....X",
@@ -880,220 +856,59 @@ NO_BOLD = set("\u2500\u2502\u250C\u2510\u2514\u2518\u251C\u2524\u252C\u2534"
               "\u2569\u256C\u2588\u2580\u2584\u258C\u2590\u2591\u2592\u2593"
               "\u2014_")
 
-# ----------------------------------------------------------------------------
-# bitmap -> pixel set -> traced contours
-# ----------------------------------------------------------------------------
 
-def validate():
-    """Assert every bitmap fits the 12-row cell and uses only 6/7/8-wide rows."""
-    for ch, (top, rows) in list(G.items()) + [("<notdef>", NOTDEF)]:
-        assert 0 <= top and top + len(rows) <= 12, f"{ch!r}: bad row span"
-        for r in rows:
-            assert len(r) in (6, 7, 8), f"{ch!r}: bad row width {len(r)}"
-            assert set(r) <= {'X', '.'}, f"{ch!r}: bad chars"
+# ---------------------------------------------------------------- specimen --
+# Sample content for docs/index.html. Each font carries its own, because the
+# demos are not portable: this one needs box drawing, blocks and the smiley.
+SPECIMEN = {
+    "tagline": "AN OPEN-SOURCE 8\u00d712 PIXEL MONOSPACE \u2022 SIL OFL 1.1",
+    "lines": [
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+        "abcdefghijklmnopqrstuvwxyz",
+        "0123456789 \u00a2$\u20ac\u00a3\u00a5 #%&@*+=<>/\\",
+        "!?\"'()[]{}|;:,.^~\u2013\u2014\u2022\u2026\u00b0\u00d7\u00f7 \u2190\u2191\u2192\u2193 \u2713\u263a",
+        "Sphinx of black quartz, judge my vow.",
+    ],
+    "bold_line": "Bold for totals: GRAND TOTAL $19.58",
+    "sample": """\u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557
+\u2551      RAD VIDEO + ARCADE      \u2551
+\u2551   2600 ATARI AVE \u2022 MALL 8    \u2551
+\u255a\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u255d
 
-def pixels_of(top, rows):
-    """Return set of (x, gy) pixel coords. gy is y-up: gy = 8 - row."""
-    pts = set()
-    for i, row in enumerate(rows):
-        off = 1 if len(row) == 6 else 0
-        r = top + i
-        for j, ch in enumerate(row):
-            if ch == 'X':
-                pts.add((j + off, 8 - r))
-    return pts
+ 06/21/1986  22:42  REG#2  0084
+\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+THE WARRIORS  VHS           2.99
+TRON          VHS           2.99
+ARCADE TOKENS \u00d725           5.00
+BLANK TAPE T-120            7.49
+\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+SUBTOTAL                   18.47
+TAX 6%                      1.11
+[b]TOTAL                      19.58[/b]
+\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+   \u2591\u2592\u2593 BE KIND \u2022 REWIND \u2593\u2592\u2591
+    \u263a HAVE A RADICAL DAY \u263a""",
+    "tester": "THANK YOU \u2022 COME AGAIN \u263a",
+}
 
-def embolden(pts, wide7):
-    """Return pts dilated one column right to fake weight.
 
-    wide7 suppresses the smear into column 7, so 7-px-wide glyphs keep a
-    sliver of right sidebearing instead of touching the next character.
-    """
-    out = set(pts)
-    for (x, y) in pts:
-        if x + 1 <= 7:
-            out.add((x + 1, y))
-    if wide7:
-        out = {(x, y) for (x, y) in out if not (x == 7 and (7, y) not in pts)}
-        out |= {(x, y) for (x, y) in pts}
-    return out
-
-RIGHT = {(1, 0): (0, -1), (0, -1): (-1, 0), (-1, 0): (0, 1), (0, 1): (1, 0)}
-LEFT = {v: k for k, v in RIGHT.items()}
-
-def trace(pts):
-    """March the pixel boundary into closed contours.
-
-    Filled area stays on the right of travel: clockwise outers,
-    counter-clockwise holes, TrueType style.
-    """
-    edges = {}
-    def add(a, b):
-        edges.setdefault(a, []).append(b)
-    for (x, y) in pts:
-        if (x, y + 1) not in pts: add((x, y + 1), (x + 1, y + 1))   # top
-        if (x + 1, y) not in pts: add((x + 1, y + 1), (x + 1, y))   # right
-        if (x, y - 1) not in pts: add((x + 1, y), (x, y))           # bottom
-        if (x - 1, y) not in pts: add((x, y), (x, y + 1))           # left
-    contours = []
-    while edges:
-        start = next(iter(edges))
-        pt = start
-        nxt = edges[pt].pop()
-        if not edges[pt]:
-            del edges[pt]
-        d = (nxt[0] - pt[0], nxt[1] - pt[1])
-        loop = [pt]
-        pt = nxt
-        while pt != start:
-            loop.append(pt)
-            cands = edges.get(pt, [])
-            best = None
-            for pref in (RIGHT[d], d, LEFT[d]):
-                tgt = (pt[0] + pref[0], pt[1] + pref[1])
-                if tgt in cands:
-                    best = tgt
-                    break
-            if best is None:
-                best = cands[0]
-            cands.remove(best)
-            if not cands:
-                del edges[pt]
-            d = (best[0] - pt[0], best[1] - pt[1])
-            pt = best
-        # drop collinear midpoints
-        simp = []
-        n = len(loop)
-        for i in range(n):
-            a, b, c = loop[i - 1], loop[i], loop[(i + 1) % n]
-            if (b[0] - a[0]) * (c[1] - b[1]) != (b[1] - a[1]) * (c[0] - b[0]):
-                simp.append(b)
-        contours.append([(x * PX, y * PX) for (x, y) in simp])
-    return contours
-
-# ----------------------------------------------------------------------------
-# font compilation
-# ----------------------------------------------------------------------------
-
-AGL = {' ': "space", '!': "exclam", '"': "quotedbl", '#': "numbersign",
-       '$': "dollar", '%': "percent", '&': "ampersand", "'": "quotesingle",
-       '(': "parenleft", ')': "parenright", '*': "asterisk", '+': "plus",
-       ',': "comma", '-': "hyphen", '.': "period", '/': "slash",
-       ':': "colon", ';': "semicolon", '<': "less", '=': "equal",
-       '>': "greater", '?': "question", '@': "at", '[': "bracketleft",
-       '\\': "backslash", ']': "bracketright", '^': "asciicircum",
-       '_': "underscore", '`': "grave", '{': "braceleft", '|': "bar",
-       '}': "braceright", '~': "asciitilde"}
-
-def glyph_name(ch):
-    """Return the AGL/PostScript glyph name for ch, falling back to uniXXXX."""
-    if ch in AGL:
-        return AGL[ch]
-    if ch.isascii() and ch.isalnum():
-        return ch if ch.isalpha() else "zero one two three four five six seven eight nine".split()[int(ch)]
-    return "uni%04X" % ord(ch)
-
-def build(style="Regular", outdir=None):
-    """Compile one style to TTF + WOFF2 and return the TTF path.
-
-    outdir=None writes the tracked repo layout (fonts/ttf, fonts/webfonts
-    and docs/fonts); any path writes every artifact to that one directory.
-    """
-    validate()
-    bold = style == "Bold"
-    order = [".notdef"]
-    cmap, glyf, metrics = {}, {}, {}
-
-    def compile_glyph(name, top, rows, ch=None):
-        """Trace one bitmap into the enclosing glyf/metrics dicts.
-
-        ch=None skips the NO_BOLD lookup, used for .notdef.
-        """
-        pts = pixels_of(top, rows)
-        if bold and pts and (ch is None or ch not in NO_BOLD):
-            wide7 = any(len(r) == 7 for r in rows)
-            pts = embolden(pts, wide7)
-        pen = TTGlyphPen(None)
-        for contour in trace(pts):
-            pen.moveTo(contour[0])
-            for p in contour[1:]:
-                pen.lineTo(p)
-            pen.closePath()
-        glyf[name] = pen.glyph()
-        lsb = min((x for x, _ in pts), default=0) * PX
-        metrics[name] = (ADV, lsb)
-
-    compile_glyph(".notdef", *NOTDEF)
-    for ch in sorted(G, key=ord):
-        name = glyph_name(ch)
-        order.append(name)
-        cmap[ord(ch)] = name
-        compile_glyph(name, *G[ch], ch=ch)
-    # render NBSP with the space glyph instead of .notdef
-    cmap[0x00A0] = "space"
-
-    fb = FontBuilder(EM, isTTF=True)
-    fb.setupGlyphOrder(order)
-    fb.setupCharacterMap(cmap)
-    fb.setupGlyf(glyf)
-    fb.setupHorizontalMetrics(metrics)
-    fb.setupHorizontalHeader(ascent=ASC, descent=-DESC)
-
-    ps = f"TillMono-{style}"
-    fb.setupNameTable({
-        "familyName": FAMILY,
-        "styleName": style,
-        "uniqueFontIdentifier": f"{VERSION};TILL;{ps}",
-        "fullName": f"{FAMILY} {style}",
-        "psName": ps,
-        "version": f"Version {VERSION}",
-        "copyright": COPYRIGHT,
-        "designer": AUTHOR,
-        "designerURL": REPO,
-        "vendorURL": REPO,
-        "description": ("An original 8x12 pixel-grid monospaced typeface for "
-                        "1980s-style receipts, terminals and labels."),
-        "licenseDescription": ("This Font Software is licensed under the SIL "
-                               "Open Font License, Version 1.1."),
-        "licenseInfoURL": "https://openfontlicense.org",
-    })
-
-    panose = Panose()
-    panose.bFamilyType = 2
-    panose.bProportion = 9          # monospaced
-    fb.setupOS2(sTypoAscender=ASC, sTypoDescender=-DESC, sTypoLineGap=0,
-                usWinAscent=ASC, usWinDescent=DESC,
-                sCapHeight=800, sxHeight=600,
-                usWeightClass=700 if bold else 400,
-                achVendID="TILL", fsType=0, panose=panose,
-                xAvgCharWidth=ADV)
-    os2 = fb.font["OS/2"]
-    os2.fsSelection = 0x20 if bold else 0x40
-    fb.font["head"].macStyle = 0x1 if bold else 0x0
-    # Machine-readable version; OSes key font-cache invalidation on this,
-    # so it has to move whenever the outlines do.
-    fb.font["head"].fontRevision = float(VERSION)
-    fb.setupPost(isFixedPitch=1, underlinePosition=-150, underlineThickness=100)
-
-    # outdir=None -> the tracked repo layout; pass a path for a throwaway build.
-    ttf_dir, woff2_dirs = (TTF_DIR, WOFF2_DIRS) if outdir is None else (outdir, [outdir])
-
-    os.makedirs(ttf_dir, exist_ok=True)
-    ttf = os.path.join(ttf_dir, f"{ps}.ttf")
-    fb.save(ttf)
-    try:
-        fb.font.flavor = "woff2"
-        os.makedirs(woff2_dirs[0], exist_ok=True)
-        woff2 = os.path.join(woff2_dirs[0], f"{ps}.woff2")
-        fb.font.save(woff2)
-        for d in woff2_dirs[1:]:
-            os.makedirs(d, exist_ok=True)
-            shutil.copyfile(woff2, os.path.join(d, f"{ps}.woff2"))
-    except Exception as e:
-        print("woff2 skipped:", e)
-    print("built", ttf, f"({len(order)} glyphs)")
-    return ttf
-
-if __name__ == "__main__":
-    build("Regular")
-    build("Bold")
+# ------------------------------------------------------------- originality --
+# References to diff against, and the shapes that are allowed to coincide.
+# On an 8x12 grid a handful of glyphs have essentially one sensible solution --
+# a rule for underscore, a cross for plus, the obvious box corners -- so any two
+# pixel fonts converge on them. Anything identical OUTSIDE these sets is a real
+# collision and fails CI. Regenerate by running src/compare.py and reading the
+# reported identical sets.
+COMPARE = {
+    "refs": {
+        "font8x8_basic.h":
+            "https://raw.githubusercontent.com/dhepper/font8x8/master/font8x8_basic.h",
+        "departure.otf":
+            "https://raw.githubusercontent.com/rektdeckard/departure-mono/main/"
+            "public/assets/DepartureMono-Regular.otf",
+    },
+    "allowed": {
+        "font8x8 (IBM ROM style)": set("_"),
+        "Departure Mono": set("!*+,=T`\u00d7\u00f7\u2013\u250c\u2554"),
+    },
+}

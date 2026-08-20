@@ -18,15 +18,10 @@ import urllib.request
 from math import gcd
 from functools import reduce
 from PIL import Image, ImageDraw, ImageFont
-import build_till_mono as bm
+from pixelfont import pixels_of
+import fonts.till_mono as bm
 
-REFS = {
-    "font8x8_basic.h":
-        "https://raw.githubusercontent.com/dhepper/font8x8/master/font8x8_basic.h",
-    "departure.otf":
-        "https://raw.githubusercontent.com/rektdeckard/departure-mono/main/"
-        "public/assets/DepartureMono-Regular.otf",
-}
+REFS = bm.COMPARE["refs"]
 for fname, url in REFS.items():
     if not os.path.exists(fname):
         print("downloading reference:", fname)
@@ -65,7 +60,7 @@ def iou(a, b):
 # ------------------------------------------------------------- till mono --
 till = {}
 for ch, (top, rows) in bm.G.items():
-    c = crop({(x, -gy) for (x, gy) in bm.pixels_of(top, rows)})
+    c = crop({(x, -gy) for (x, gy) in pixels_of(bm.GRID, top, rows)})
     if c:
         till[ch] = c
 
@@ -144,7 +139,7 @@ ex2 = compare("Departure Mono", dep)
 # ------------------------------------------------------------ visual sheet --
 CHARS = [c for c in "AGKMQRS0aegsy&@#?$%" if c in till]
 S, PAD, LBL = 7, 14, 18
-fonts = [("TILL MONO", till, (255, 176, 0)),
+fonts = [(bm.IDENTITY.family.upper(), till, (255, 176, 0)),
          ("IBM-STYLE 8x8 ROM", rom, (120, 190, 255)),
          ("DEPARTURE MONO", dep, (170, 255, 140))]
 cellw = 10 * S
@@ -166,8 +161,9 @@ for fi, (label, table, col) in enumerate(fonts):
                     d.rectangle([ox + x * S, oy + LBL + y * S,
                                  ox + x * S + S - 1, oy + LBL + y * S + S - 1],
                                 fill=col)
-img.save("compare_sheet.png")
-print("\nwrote compare_sheet.png", img.size)
+OUT = f"compare_sheet_{bm.IDENTITY.slug}.png"
+img.save(OUT)
+print("\nwrote", OUT, img.size)
 
 # ----------------------------------------------------------------- verdict --
 # On an 8x12 pixel grid a handful of shapes have essentially one sensible
@@ -175,12 +171,11 @@ print("\nwrote compare_sheet.png", img.size)
 # underscore, a cross for plus, the obvious box corners. Those are listed here
 # as expected. An identical bitmap for anything *outside* these sets would be a
 # real collision worth investigating, so CI fails on it.
-ALLOWED_ROM = set("_")
-ALLOWED_DEP = set("!*+,=T`×÷–┌╔")
+ALLOWED = bm.COMPARE["allowed"]
 
 problems = []
-for label, exact, allowed in (("font8x8 (IBM ROM style)", ex1, ALLOWED_ROM),
-                              ("Departure Mono", ex2, ALLOWED_DEP)):
+for label, exact in (("font8x8 (IBM ROM style)", ex1), ("Departure Mono", ex2)):
+    allowed = ALLOWED[label]
     unexpected = sorted(set(exact) - allowed)
     if unexpected:
         problems.append(f"{label}: unexpected identical glyphs {''.join(unexpected)!r}")

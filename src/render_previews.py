@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Render specimen + receipt previews using the compiled Till Mono TTFs.
+"""Render specimen + receipt previews from Till Mono's compiled TTFs.
 
 Writes specimen.png and receipt_demo.png. Run from the repo root -- the
 TTF input paths are relative.
@@ -8,11 +8,16 @@ TTF input paths are relative.
 import random
 from PIL import Image, ImageDraw, ImageFont
 
-REG = "fonts/ttf/TillMono-Regular.ttf"
-BOLD = "fonts/ttf/TillMono-Bold.ttf"
+import fonts.till_mono as bm
 
-def adv(size):                 # monospace advance in px at a given ppem
-    return size * 800 // 1200
+FONT_DIR = f"fonts/{bm.IDENTITY.slug}/ttf"
+REG = f"{FONT_DIR}/{bm.IDENTITY.ps_name('Regular')}.ttf"
+BOLD = f"{FONT_DIR}/{bm.IDENTITY.ps_name('Bold')}.ttf"
+
+
+def adv(size):
+    """Monospace advance in px at a given ppem, derived from the grid."""
+    return size * bm.GRID.advance // bm.GRID.em
 
 # ---------------------------------------------------------------- specimen --
 def specimen():
