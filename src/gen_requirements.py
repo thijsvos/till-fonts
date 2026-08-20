@@ -38,7 +38,7 @@ HEADER = '''\
 # Bumping fonttools or brotli REQUIRES rebuilding and committing fonts/ and
 # docs/fonts/ in the same commit:
 #
-#   SOURCE_DATE_EPOCH=1787097600 python src/build_till_mono.py
+#   SOURCE_DATE_EPOCH=1787097600 python src/build_all.py
 #
 # Hashes let CI install with --require-hashes, so a substituted wheel fails the
 # install instead of silently producing different fonts. Every digest PyPI

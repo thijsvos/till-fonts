@@ -1,44 +1,61 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Render a labeled contact sheet of the raw glyph bitmaps for QA."""
+"""Render a labeled contact sheet of the raw glyph bitmaps for QA.
+
+Writes proof_sheet_<slug>.png per font. Run from the repo root:
+  python src/proof.py
+"""
+import importlib
+
 from PIL import Image, ImageDraw
-import build_till_mono as bm
+
+from build_all import FONTS
+from pixelfont import pixels_of
 
 S = 6            # screen px per font px
-CW, CH = 8 * S, 12 * S
 PAD, LABEL = 10, 14
 COLS = 12
 
-def draw_cell(d, ox, oy, top, rows):
+
+def draw_cell(d, grid, ox, oy, top, rows):
     """Draw one glyph cell with cap, x-height and baseline guides at (ox, oy)."""
-    # guides: cell, cap line (row1 top), x line (row3 top), baseline (row8 bottom)
-    d.rectangle([ox, oy, ox + CW - 1, oy + CH - 1], outline=(45, 45, 55))
-    for row_line, col in ((1, (60, 60, 45)), (3, (60, 60, 45))):
+    cw, ch = grid.cols * S, grid.rows * S
+    d.rectangle([ox, oy, ox + cw - 1, oy + ch - 1], outline=(45, 45, 55))
+    for row_line in (grid.cap_top_row, grid.x_top_row):
         y = oy + row_line * S
-        d.line([ox, y, ox + CW - 1, y], fill=col)
-    yb = oy + 9 * S
-    d.line([ox, yb, ox + CW - 1, yb], fill=(120, 60, 60))
-    for (x, gy) in bm.pixels_of(top, rows):
-        r = 8 - gy
+        d.line([ox, y, ox + cw - 1, y], fill=(60, 60, 45))
+    yb = oy + (grid.baseline_row + 1) * S
+    d.line([ox, yb, ox + cw - 1, yb], fill=(120, 60, 60))
+    for (x, gy) in pixels_of(grid, top, rows):
+        r = grid.baseline_row - gy
         d.rectangle([ox + x * S, oy + r * S, ox + x * S + S - 1, oy + r * S + S - 1],
                     fill=(255, 214, 90))
 
-def main():
-    items = sorted(bm.G.items(), key=lambda kv: ord(kv[0]))
+
+def sheet(font):
+    grid = font.GRID
+    cw, ch = grid.cols * S, grid.rows * S
+    items = sorted(font.G.items(), key=lambda kv: ord(kv[0]))
     rows_n = (len(items) + COLS - 1) // COLS
-    W = COLS * (CW + PAD) + PAD
-    H = rows_n * (CH + PAD + LABEL) + PAD
-    img = Image.new("RGB", (W, H), (16, 16, 20))
+    img = Image.new("RGB",
+                    (COLS * (cw + PAD) + PAD, rows_n * (ch + PAD + LABEL) + PAD),
+                    (16, 16, 20))
     d = ImageDraw.Draw(img)
-    for i, (ch, (top, rows)) in enumerate(items):
-        cx, cy = i % COLS, i // COLS
-        ox = PAD + cx * (CW + PAD)
-        oy = PAD + cy * (CH + PAD + LABEL)
-        draw_cell(d, ox, oy, top, rows)
-        label = ch if ch.isprintable() and ch != ' ' else '%04X' % ord(ch)
-        d.text((ox, oy + CH + 1), f"{label} {ord(ch):04X}", fill=(150, 150, 160))
-    img.save("proof_sheet.png")
-    print("wrote proof_sheet.png", img.size)
+    for i, (c, (top, rows)) in enumerate(items):
+        ox = PAD + (i % COLS) * (cw + PAD)
+        oy = PAD + (i // COLS) * (ch + PAD + LABEL)
+        draw_cell(d, grid, ox, oy, top, rows)
+        label = c if c.isprintable() and c != ' ' else '%04X' % ord(c)
+        d.text((ox, oy + ch + 1), f"{label} {ord(c):04X}", fill=(150, 150, 160))
+    out = f"proof_sheet_{font.IDENTITY.slug}.png"
+    img.save(out)
+    print("wrote", out, img.size)
+
+
+def main():
+    for name in FONTS:
+        sheet(importlib.import_module(f"fonts.{name}"))
+
 
 if __name__ == "__main__":
     main()

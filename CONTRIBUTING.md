@@ -1,61 +1,77 @@
 # Contributing
 
-Glyphs are ASCII pixel maps in `src/build_till_mono.py` — `X` on, `.` off,
-rows 0–11 top to bottom with the baseline under row 8. Standard glyphs draw
-in columns 1–6; box/block characters bleed across the full 0–7 cell so they
-connect between lines.
+Each typeface lives in one module under `src/fonts/`, declaring its grid, its identity
+and its glyph bitmaps. The shared machinery — contour tracing, emboldening, TrueType
+assembly — is in `src/pixelfont/` and is grid-agnostic, so a new face is data plus a
+`Grid`, not new code.
 
-To propose a change:
+Glyphs are ASCII pixel maps: `X` on, `.` off, rows numbered from the top, with the
+baseline sitting under `GRID.baseline_row`. Row strings may be `cols-2` wide (inset one
+column, giving a sidebearing on both sides), `cols-1`, or the full `cols` for box and
+block characters that must connect edge to edge.
 
-1. `python3 -m venv .venv && . .venv/bin/activate && pip install -r requirements.txt`
-2. `export SOURCE_DATE_EPOCH=1787097600` — pins the font's internal timestamp
-   so rebuilds are byte-identical. CI uses this exact value; without it your
-   rebuilt fonts differ from everyone else's and the build fails.
-3. Edit the bitmaps, then `python src/build_till_mono.py`. This writes straight
-   into `fonts/ttf/`, `fonts/webfonts/` and `docs/fonts/` — **commit those
-   rebuilt fonts with your change**, since CI rebuilds and fails on any drift.
-4. `python src/proof.py` and eyeball `proof_sheet.png`
-5. Regenerate the docs images with `python src/render_previews.py` and copy
-   the PNGs into `docs/` if they changed
-6. Open a pull request that includes the updated proof sheet
+## Editing a glyph
+
+1. `python3 -m venv .venv && . .venv/bin/activate && pip install --require-hashes -r requirements.txt`
+2. `export SOURCE_DATE_EPOCH=1787097600` — pins the fonts' internal timestamps so
+   rebuilds are byte-identical. CI uses this exact value; without it your rebuilt fonts
+   differ from everyone else's and the build fails.
+3. Edit the bitmaps, then `python src/build_all.py`. This writes straight into
+   `fonts/<name>/` and `docs/fonts/<name>/` — **commit those rebuilt fonts with your
+   change**, since CI rebuilds and fails on any drift.
+4. `python src/proof.py` and eyeball `proof_sheet_<name>.png`
+5. `python src/render_previews.py`, and copy any changed PNGs into `docs/`
+6. `python src/compare.py` must still pass — it fails if a glyph becomes byte-identical
+   to a reference pixel font outside the documented allow-list
+7. Open a pull request that includes the updated proof sheet
+
+## Adding a font
+
+Copy `src/fonts/till_mono.py` as a starting point and give it its own `GRID`,
+`IDENTITY`, `G`, `NOTDEF`, `NO_BOLD`, `SPECIMEN` and `COMPARE`. Then add its module name
+to `FONTS` in `src/build_all.py` — that list drives the build, the manifest, the
+specimen page's switcher, CI attestation and the release assets, so nothing else needs
+editing.
+
+Pick references for `COMPARE` that share the new grid's proportions; an 8×8 ROM font is
+not a meaningful comparison for a 16-row face. Run `python src/compare.py`, read the
+reported identical sets, and record the genuinely single-solution shapes as the
+allow-set — with a note explaining why each is unavoidable.
 
 ## Bumping the build toolchain
 
 `requirements.txt` pins `fonttools` and `brotli` to exact versions on purpose. The
-compiled font bytes are a function of those two libraries — brotli alone is ~98% of
-every `.woff2` payload — so a version change rewrites the binaries even when no glyph
-changed. Bumping either one therefore **requires rebuilding and committing
-`fonts/` and `docs/fonts/` in the same commit**, or CI's drift guard will fail.
+compiled font bytes are a function of those two libraries — brotli alone is ~98% of every
+`.woff2` payload — so a version change rewrites the binaries even when no glyph changed.
+Bumping either one therefore **requires rebuilding and committing the fonts in the same
+commit**, or CI's drift guard will fail.
 
-`pillow` renders the proof PNGs, which CI does not diff — but it *also* rasterises
-the Departure Mono reference in `src/compare.py`, so a bump can move the originality
-check. Review a pillow bump against a green `originality` job before merging.
+`pillow` renders the proof PNGs, which CI does not diff — but it *also* rasterises the
+Departure Mono reference in `src/compare.py`, so a bump can move the originality check.
+Review a pillow bump against a green `originality` job before merging.
 
-`requirements.txt` is hash-pinned and generated — don't hand-edit the hashes.
-Change the versions in `src/gen_requirements.py` and re-run it:
+`requirements.txt` is hash-pinned and generated — don't hand-edit the hashes. Change the
+versions in `src/gen_requirements.py` and re-run it.
 
-```sh
-python src/gen_requirements.py
-```
+## Versions
 
-Dependabot also opens weekly PRs for these; a red one means that release changes
-the font binaries, and the fix is to rebuild and commit them in the same PR.
+Versioning is per-font. Each face carries its own `version` in its `Identity`, which
+becomes its name-table version and `head.fontRevision`. That is what OS font caches key
+on, so it moves **only when that font's outlines move** — fixing a glyph in one face must
+not invalidate every other face for users.
 
-## Cutting a release
+Separately, `package.json` and the git tag version the *collection*: the bundle people
+download. The README's jsDelivr examples pin a tag, so they track it.
 
-The version lives in three places and they must agree — `package.json`, `VERSION`
-in `src/build_till_mono.py` (which becomes the font's name-table version and
-`head.fontRevision`), and the git tag. CI enforces this on every push and again
-on the tag, because v1.0.1 and v1.0.2 shipped different Bold outlines while both
-reported `Version 1.000`, which font caches cannot tell apart.
+`python src/check_versions.py` enforces all of this and runs in CI on every push, and
+again against the tag on release.
 
-To release `1.0.N`:
+To release the collection as `X.Y.Z`:
 
-1. Set `"version": "1.0.N"` in `package.json`
-2. Set `VERSION = "1.00N"` in `src/build_till_mono.py` (note the font's 3-digit form)
-3. Update the jsDelivr pin in `README.md` to `@v1.0.N`
-4. `SOURCE_DATE_EPOCH=1787097600 python src/build_till_mono.py` and commit the fonts
-5. `python src/check_versions.py` must pass, then tag `v1.0.N`
+1. Bump any font whose outlines changed (`version=` in its `Identity`) and rebuild
+2. Set `"version": "X.Y.Z"` in `package.json`
+3. Update the jsDelivr pins in `README.md` to `@vX.Y.Z`
+4. `python src/check_versions.py` must pass, then tag `vX.Y.Z`
 
-Please keep new glyphs original — don't paste bitmaps from other fonts, even
-open-source ones, so the provenance story in the README stays true.
+Please keep new glyphs original — don't paste bitmaps from other fonts, even open-source
+ones, so the provenance story in the README stays true.
