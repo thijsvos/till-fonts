@@ -17,17 +17,16 @@ This checks:
 
 Run from the repo root:  python src/check_versions.py [expected-tag]
 """
-import importlib
 import json
 import pathlib
 import re
 import sys
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-
-from build_all import FONTS   # noqa: E402
-
+# Deliberately dependency-free: this runs in the release job, which checks out
+# and packages but never pip-installs. Reading the declared numbers needs no
+# font toolchain, so don't import one.
 ROOT = pathlib.Path(__file__).resolve().parent.parent
+FONT_DIR = ROOT / "src" / "fonts"
 
 
 def main():
@@ -45,20 +44,31 @@ def main():
         manifest = json.loads(manifest_path.read_text())
 
     by_slug = {f["slug"]: f for f in manifest["fonts"]}
-    for mod_name in FONTS:
-        font = importlib.import_module(f"fonts.{mod_name}")
-        slug, version = font.IDENTITY.slug, font.IDENTITY.version
+
+    # Each font module declares slug= and version= inside its Identity(...).
+    declared = {}
+    for path in sorted(FONT_DIR.glob("*.py")):
+        if path.name == "__init__.py":
+            continue
+        text = path.read_text()
+        slug = re.search(r'slug="([^"]+)"', text)
+        version = re.search(r'version="([^"]+)"', text)
+        if slug and version:
+            declared[slug.group(1)] = (version.group(1), path.name)
+
+    for slug, (version, fname) in declared.items():
         entry = by_slug.get(slug)
         if entry is None:
-            problems.append(f"{slug} is built but missing from fonts/manifest.json")
+            problems.append(
+                f"{slug} ({fname}) is missing from fonts/manifest.json "
+                "-- run python src/build_all.py")
         elif entry["version"] != version:
             problems.append(
                 f"{slug}: manifest says {entry['version']}, "
-                f"src/fonts/{mod_name}.py says {version} -- manifest is stale")
+                f"src/fonts/{fname} says {version} -- manifest is stale")
     for slug in by_slug:
-        if slug not in {importlib.import_module(f"fonts.{m}").IDENTITY.slug
-                        for m in FONTS}:
-            problems.append(f"{slug} is in the manifest but no longer built")
+        if slug not in declared:
+            problems.append(f"{slug} is in the manifest but has no src/fonts module")
 
     # 2. The README's copy-paste CDN snippets must not point at an older release.
     readme = (ROOT / "README.md").read_text()
