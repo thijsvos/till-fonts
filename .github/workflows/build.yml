@@ -34,11 +34,17 @@ jobs:
       - name: Rebuild fonts from source
         run: python src/build_till_mono.py
 
+      # git status, not git diff: diff is blind to UNTRACKED files, so a newly
+      # added font that was never `git add`ed would rebuild in CI and pass the
+      # guard while the repo shipped nothing.
       - name: Fail if committed fonts drift from source
         run: |
-          if ! git diff --quiet -- fonts/ docs/fonts/; then
-            echo "::error::Committed fonts do not match a fresh build of src/build_till_mono.py"
-            git diff --stat -- fonts/ docs/fonts/
+          drift="$(git status --porcelain -- fonts/ docs/fonts/)"
+          if [ -n "$drift" ]; then
+            echo "::error::Committed fonts do not match a fresh build"
+            echo "$drift"
+            echo "  '??' = a built font that was never committed"
+            echo "  ' M' = a committed font that no longer matches source"
             echo "Fix locally with:"
             echo "  SOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH python src/build_till_mono.py"
             echo "  git add fonts docs && git commit --amend --no-edit"
