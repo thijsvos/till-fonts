@@ -1,5 +1,22 @@
 # Changelog
 
+## 2.1.0 — 2026-08-20
+
+Adds **Till Text**, the family's general-purpose face.
+
+- 8×16 pixel monospace, 208 glyphs, Regular + Bold
+- Neutral by design, with a large x-height (800 of a 1000 cap height) — takes its
+  cues from Commit Mono's thesis that a working typeface should be unremarkable
+- Full printable ASCII, Latin-1 accents composed from bases plus marks,
+  typographic marks, currency, maths, arrows, box drawing and blocks
+- Pixel-perfect at multiples of 16px, the web's default body size
+- Originality: 205 glyphs shared with Departure Mono, **1 identical** (the
+  ellipsis — three dots have one solution), mean IoU 0.41
+
+Also: `src/compare.py` now takes a font argument and only runs the references a
+font declares — an 8×8 ROM font is not a meaningful comparison for a 16-row
+face — and `src/check_originality.py` loops it over the whole family in CI.
+
 ## 2.0.0 — 2026-08-20
 
 Restructured as a font family. **Breaking:** the repo moved to `till-fonts` and

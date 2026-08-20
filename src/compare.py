@@ -14,12 +14,18 @@ Run from the repo root: python src/compare.py
 """
 import re
 import os
+import sys
+import importlib
 import urllib.request
 from math import gcd
 from functools import reduce
 from PIL import Image, ImageDraw, ImageFont
 from pixelfont import pixels_of
-import fonts.till_mono as bm
+
+# Which font to check; defaults to Till Mono so bare `python src/compare.py`
+# keeps working. src/check_all.py loops over the family.
+_MOD = sys.argv[1] if len(sys.argv) > 1 else "till_mono"
+bm = importlib.import_module(f"fonts.{_MOD}")
 
 REFS = bm.COMPARE["refs"]
 for fname, url in REFS.items():
@@ -65,18 +71,19 @@ for ch, (top, rows) in bm.G.items():
         till[ch] = c
 
 # ---------------------------------------------------------------- font8x8 --
-src = open("font8x8_basic.h").read()
-groups = re.findall(r"\{([^}]*)\}", src)
 rom = {}
-for code, grp in enumerate(groups[:128]):
-    vals = [int(v, 16) for v in re.findall(r"0x[0-9A-Fa-f]{2}", grp)]
-    if len(vals) != 8 or code < 32 or code > 126:
-        continue
-    pix = {(x, y) for y, byte in enumerate(vals) for x in range(8)
-           if byte >> x & 1}                      # LSB = leftmost pixel
-    c = crop(pix)
-    if c:
-        rom[chr(code)] = c
+if "font8x8_basic.h" in REFS:
+    src = open("font8x8_basic.h").read()
+    groups = re.findall(r"\{([^}]*)\}", src)
+    for code, grp in enumerate(groups[:128]):
+        vals = [int(v, 16) for v in re.findall(r"0x[0-9A-Fa-f]{2}", grp)]
+        if len(vals) != 8 or code < 32 or code > 126:
+            continue
+        pix = {(x, y) for y, byte in enumerate(vals) for x in range(8)
+               if byte >> x & 1}                  # LSB = leftmost pixel
+        c = crop(pix)
+        if c:
+            rom[chr(code)] = c
 
 # ---------------------------------------------------------- departure mono --
 from fontTools.ttLib import TTFont
@@ -133,15 +140,18 @@ def compare(name, ref):
           "  ".join(f"{ch}:{s:.2f}" for s, ch in sims[:8] if ch not in exact))
     return exact
 
-ex1 = compare("font8x8 (IBM ROM style)", rom)
-ex2 = compare("Departure Mono", dep)
+RESULTS = {}
+if rom:
+    RESULTS["font8x8 (IBM ROM style)"] = compare("font8x8 (IBM ROM style)", rom)
+RESULTS["Departure Mono"] = compare("Departure Mono", dep)
 
 # ------------------------------------------------------------ visual sheet --
 CHARS = [c for c in "AGKMQRS0aegsy&@#?$%" if c in till]
 S, PAD, LBL = 7, 14, 18
-fonts = [(bm.IDENTITY.family.upper(), till, (255, 176, 0)),
-         ("IBM-STYLE 8x8 ROM", rom, (120, 190, 255)),
-         ("DEPARTURE MONO", dep, (170, 255, 140))]
+fonts = [(bm.IDENTITY.family.upper(), till, (255, 176, 0))]
+if rom:
+    fonts.append(("IBM-STYLE 8x8 ROM", rom, (120, 190, 255)))
+fonts.append(("DEPARTURE MONO", dep, (170, 255, 140)))
 cellw = 10 * S
 W = PAD + len(CHARS) * (cellw + PAD)
 H = PAD + len(fonts) * (13 * S + PAD + LBL) + 8
@@ -166,7 +176,7 @@ img.save(OUT)
 print("\nwrote", OUT, img.size)
 
 # ----------------------------------------------------------------- verdict --
-# On an 8x12 pixel grid a handful of shapes have essentially one sensible
+# On a pixel grid a handful of shapes have essentially one sensible
 # solution, so any two pixel fonts converge on them -- a horizontal rule for
 # underscore, a cross for plus, the obvious box corners. Those are listed here
 # as expected. An identical bitmap for anything *outside* these sets would be a
@@ -174,8 +184,8 @@ print("\nwrote", OUT, img.size)
 ALLOWED = bm.COMPARE["allowed"]
 
 problems = []
-for label, exact in (("font8x8 (IBM ROM style)", ex1), ("Departure Mono", ex2)):
-    allowed = ALLOWED[label]
+for label, exact in RESULTS.items():
+    allowed = ALLOWED.get(label, set())
     unexpected = sorted(set(exact) - allowed)
     if unexpected:
         problems.append(f"{label}: unexpected identical glyphs {''.join(unexpected)!r}")

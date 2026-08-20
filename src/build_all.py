@@ -22,7 +22,7 @@ from pixelfont import build   # noqa: E402
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Every font in the family, in the order they should appear in the specimen.
-FONTS = ["till_mono"]
+FONTS = ["till_mono", "till_text"]
 
 STYLES = ["Regular", "Bold"]
 
