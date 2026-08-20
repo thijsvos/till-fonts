@@ -3,9 +3,11 @@ __pycache__/
 dist/
 departure.otf
 font8x8_basic.h
-/proof_sheet.png
-/specimen.png
-/receipt_demo.png
-/compare_sheet.png
+# Generated proof/preview images land at the repo root; the copies that ship
+# live in docs/. Globbed because each font produces its own set.
+/proof_sheet*.png
+/specimen*.png
+/receipt_demo*.png
+/compare_sheet*.png
 .DS_Store
 .venv/
