@@ -38,6 +38,45 @@
         "sample": "\u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557\n\u2551      RAD VIDEO + ARCADE      \u2551\n\u2551   2600 ATARI AVE \u2022 MALL 8    \u2551\n\u255a\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u255d\n\n 06/21/1986  22:42  REG#2  0084\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\nTHE WARRIORS  VHS           2.99\nTRON          VHS           2.99\nARCADE TOKENS \u00d725           5.00\nBLANK TAPE T-120            7.49\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\nSUBTOTAL                   18.47\nTAX 6%                      1.11\n[b]TOTAL                      19.58[/b]\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n   \u2591\u2592\u2593 BE KIND \u2022 REWIND \u2593\u2592\u2591\n    \u263a HAVE A RADICAL DAY \u263a",
         "tester": "THANK YOU \u2022 COME AGAIN \u263a"
       }
+    },
+    {
+      "slug": "till-text",
+      "family": "Till Text",
+      "psPrefix": "TillText",
+      "version": "1.000",
+      "description": "An original 8x16 pixel-grid monospaced typeface for user interfaces, body copy and code.",
+      "styles": [
+        "Regular",
+        "Bold"
+      ],
+      "glyphs": 208,
+      "grid": {
+        "cols": 8,
+        "rows": 16,
+        "em": 1600,
+        "advance": 800,
+        "capHeight": 1000,
+        "xHeight": 800
+      },
+      "sizes": [
+        16,
+        32,
+        48,
+        64
+      ],
+      "specimen": {
+        "tagline": "AN OPEN-SOURCE 8\u00d716 PIXEL MONOSPACE \u2022 SIL OFL 1.1",
+        "lines": [
+          "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+          "abcdefghijklmnopqrstuvwxyz",
+          "0123456789 \u00a2$\u20ac\u00a3\u00a5 #%&@*+=<>/\\",
+          "Gr\u00fc\u00dfe aus Z\u00fcrich \u2014 caf\u00e9 na\u00efve pi\u00f1ata",
+          "Sphinx of black quartz, judge my vow."
+        ],
+        "bold_line": "Bold for emphasis: 240 items \u00b7 \u20ac1,284.00",
+        "sample": "\u250c\u2500 register \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502 [b]inbox[/b]        12 unread       \u2502\n\u2502 notes         4 drafts       \u2502\n\u2502 archive     318 items        \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502 def parse(line: str) -> int: \u2502\n\u2502     x = line.split(\"=\")[1]   \u2502\n\u2502     return int(x) \u2260 0        \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518",
+        "tester": "The quick brown fox jumps over the lazy dog \u2713"
+      }
     }
   ]
 }
