@@ -43,18 +43,18 @@
       "slug": "till-text",
       "family": "Till Text",
       "psPrefix": "TillText",
-      "version": "1.000",
-      "description": "An original 8x16 pixel-grid monospaced typeface for user interfaces, body copy and code.",
+      "version": "1.001",
+      "description": "An original 10x16 pixel-grid monospaced typeface for user interfaces, body copy and code.",
       "styles": [
         "Regular",
         "Bold"
       ],
       "glyphs": 208,
       "grid": {
-        "cols": 8,
+        "cols": 10,
         "rows": 16,
         "em": 1600,
-        "advance": 800,
+        "advance": 1000,
         "capHeight": 1000,
         "xHeight": 800
       },
@@ -65,7 +65,7 @@
         64
       ],
       "specimen": {
-        "tagline": "AN OPEN-SOURCE 8\u00d716 PIXEL MONOSPACE \u2022 SIL OFL 1.1",
+        "tagline": "AN OPEN-SOURCE 10\u00d716 PIXEL MONOSPACE \u2022 SIL OFL 1.1",
         "lines": [
           "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
           "abcdefghijklmnopqrstuvwxyz",

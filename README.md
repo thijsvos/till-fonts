@@ -20,7 +20,7 @@ opened, traced or converted.
 | Font | Grid | Glyphs | Styles | For |
 |---|---|---|---|---|
 | **[Till Mono](fonts/till-mono/)** | 8×12 | 148 | Regular + Bold | Receipts, labels, terminal UIs. Square and deliberately retro; box drawing that connects seamlessly. Pixel-perfect at multiples of 12px. |
-| **[Till Text](fonts/till-text/)** | 8×16 | 208 | Regular + Bold | UI, body copy and code. Neutral, with a large x-height and full Latin-1 accents. Pixel-perfect at multiples of 16px — the web's default body size. |
+| **[Till Text](fonts/till-text/)** | 10×16 | 208 | Regular + Bold | UI, body copy and code. Neutral, with a large x-height and full Latin-1 accents. Pixel-perfect at multiples of 16px — the web's default body size. |
 
 *A till is a cash register — the family is named for where the first face belongs.*
 
@@ -60,7 +60,7 @@ Each font ships a drop-in stylesheet next to its WOFF2s:
 Or hotlink via jsDelivr, pinned to a release tag — no install, no build step:
 
 ```css
-src: url("https://cdn.jsdelivr.net/gh/thijsvos/till-fonts@v2.1.0/fonts/till-mono/webfonts/TillMono-Regular.woff2") format("woff2");
+src: url("https://cdn.jsdelivr.net/gh/thijsvos/till-fonts@v2.1.1/fonts/till-mono/webfonts/TillMono-Regular.woff2") format("woff2");
 ```
 
 You can also depend on the whole family from another project:
@@ -126,16 +126,16 @@ obvious box corners). Current results for Till Mono:
 | font8x8 (IBM-style 8×8 ROM) | 94 | 1 — `_` |
 | Departure Mono | 144 | 12 — ``! * + , = T ` × ÷ – ┌ ╔`` |
 
-**Till Text** (8×16, compared against Departure Mono only — an 8×8 ROM font is
+**Till Text** (10×16, compared against Departure Mono only — an 8×8 ROM font is
 not a meaningful comparison for a 16-row face):
 
 | Reference | Shared glyphs | Identical bitmaps | Mean IoU |
 |---|---|---|---|
-| Departure Mono | 205 | 1 — `…` | 0.41 |
+| Departure Mono | 205 | **0** | 0.36 |
 
 **No letter or digit matches any reference in either face.** Every collision is a
 shape with essentially one solution on a pixel grid — a rule for underscore, a
-cross for plus, three dots for an ellipsis.
+cross for plus, the obvious box corners. Till Text has no collisions at all.
 
 ## License
 
